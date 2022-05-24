@@ -61,7 +61,6 @@ function App() {
   };
 
   const handleLogInSubmit = async (e) => {
-    console.log("Enter");
     e.preventDefault();
     try {
       const response = await AxiosInstance.post("api/users/login", {
@@ -84,7 +83,6 @@ function App() {
 
   const handleLogOut = async () => {
     const response = await AxiosInstance.post("api/users/logout");
-
     setUser({});
   };
   return (
