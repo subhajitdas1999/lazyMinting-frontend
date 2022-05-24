@@ -1,6 +1,6 @@
 const catchAsync = (fn) => {
   return (e) => {
-    fn(e).catch((err) => alert(err.message));
+    fn(e).catch((err) => console.log(err));
   };
 };
 
