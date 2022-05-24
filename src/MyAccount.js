@@ -10,8 +10,13 @@ const MyAccount = () => {
     nftFile: "",
   });
   const [user] = useContext(userContext).userDetails;
-  const [handleLogOut] = useContext(authContext).authHandlers;
-
+  const [
+    handleAuthDataChange,
+    handleSignupSubmit,
+    handleLogInSubmit,
+    handleLogOut,
+  ] = useContext(authContext).authHandlers;
+  
   const handleFileChange = (e) => {
     e.target.name === "nftFile"
       ? setFile((prev) => {
@@ -33,7 +38,6 @@ const MyAccount = () => {
     formData.append("description", file.nftDescription);
     formData.append("NFTImage", file.nftFile);
 
-
     AxiosInstance.post("api/nft/uploadNFT", formData).then((res) =>
       setFile({
         nftDescription: "",
@@ -41,7 +45,6 @@ const MyAccount = () => {
       })
     );
   };
-
 
   return (
     <div className="myAccount">
@@ -71,9 +74,9 @@ const MyAccount = () => {
 
         <Link to={"/myNFTs"}>Show MY NFTS</Link>
         <div className="logOut">
-        <Link to={"/redirect"}>
-          <button onClick={handleLogOut}>Log Out</button>
-        </Link>
+          <Link to={"/redirect"}>
+            <button onClick={handleLogOut}>Log Out</button>
+          </Link>
         </div>
       </div>
     </div>
