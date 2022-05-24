@@ -34,7 +34,6 @@ class LazyMint {
 
     return domain;
   }
-
   async getSignature(NFTPackage) {
     const domain = await this.getDomain();
     const typedData = {
@@ -43,7 +42,6 @@ class LazyMint {
       domain: domain,
       message: NFTPackage,
     };
-
     const digest = TypedDataUtils.encodeDigest(typedData);
     const digestHex = ethers.utils.hexlify(digest);
     // console.log(this.signer.address);
