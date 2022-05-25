@@ -1,8 +1,9 @@
 import { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { userContext, authContext } from "./App";
 import AxiosInstance from "./axoisInstancs.js";
 import defaultProfileIng from "./images/defaultProfile.jpg";
+import catchAsync from "./utils/catchAsync";
 
 const MyAccount = () => {
   const [file, setFile] = useState({
@@ -16,7 +17,8 @@ const MyAccount = () => {
     handleLogInSubmit,
     handleLogOut,
   ] = useContext(authContext).authHandlers;
-  
+  const nav = useNavigate();
+
   const handleFileChange = (e) => {
     e.target.name === "nftFile"
       ? setFile((prev) => {
@@ -32,19 +34,21 @@ const MyAccount = () => {
           };
         });
   };
-  const handleUploadNFT = async (e) => {
+  const handleUploadNFT = catchAsync(async (e) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("description", file.nftDescription);
     formData.append("NFTImage", file.nftFile);
 
-    AxiosInstance.post("api/nft/uploadNFT", formData).then((res) =>
-      setFile({
-        nftDescription: "",
-        nftFile: "",
-      })
-    );
-  };
+    const res = await AxiosInstance.post("api/nft/uploadNFT", formData);
+
+    setFile({
+      nftDescription: "",
+      nftFile: "",
+    });
+
+    nav("/myNFTs");
+  });
 
   return (
     <div className="myAccount">
@@ -59,12 +63,14 @@ const MyAccount = () => {
             <input
               type="text"
               name="nftDescription"
+              required
               value={file.nftDescription}
               onChange={handleFileChange}
             />
             <input
               type="file"
               name="nftFile"
+              required
               accept="image/png, image/jpeg, image/jpg"
               onChange={handleFileChange}
             />
