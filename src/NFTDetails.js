@@ -92,6 +92,8 @@ const NFTDetails = () => {
       }
     }
 
+    
+
     //Format the NFT package
     const NFTPackage = {
       tokenId: nftCompleteData.db.NFTArt.tokenId,
