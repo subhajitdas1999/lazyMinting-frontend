@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { userContext } from "./App";
 import { ABI, RINKEBY_ADDRESS } from "./contracts/MyLazyMinting";
 import { connectToMetamask } from "./utils/ConnectToMetamask";
@@ -11,13 +11,13 @@ import AxiosInstance from "./axoisInstancs";
 const NFTDetails = () => {
   const [nftPrice, setNftPrice] = useState("");
   const [accounts, setAccounts] = useState([]);
+  const nav = useNavigate();
   const location = useLocation();
   const nftCompleteData = location.state;
-  const [user] = useContext(userContext).userDetails;
+  const [user, setUser] = useContext(userContext).userDetails;
 
   //sell NFT function
   useEffect(() => {
-    console.log(nftCompleteData);
     if (nftCompleteData.db.NFTArt.isTokenOnchain) {
       (async () => {
         await handleMetamaskConnection();
@@ -25,12 +25,18 @@ const NFTDetails = () => {
     }
   }, []);
 
-  const handleNFTSellChain = catchAsync(async (e) => {
+  const handleNFTSell = catchAsync(async (e) => {
     e.preventDefault();
 
     // Connect to metamask
     const [provider, accounts, signer] = await connectToMetamask();
 
+    //checking the network
+    const chainId = await signer.getChainId();
+    if (chainId !== 4) {
+      alert("connect you metamask to rinkeby network");
+      return;
+    }
     //get write mode instance
     const myLazyMintReadWrite = new ethers.Contract(
       RINKEBY_ADDRESS,
@@ -38,20 +44,34 @@ const NFTDetails = () => {
       signer
     );
 
+    if (nftPrice < process.env.REACT_APP_MIN_NFT_PRICE) {
+      alert(
+        `Minimum price for NFT selling is ${process.env.REACT_APP_MIN_NFT_PRICE} Ether`
+      );
+      return;
+    }
+
     //if the NFT on chain
     if (nftCompleteData.db.NFTArt.isTokenOnchain) {
       //if not approved
 
+      if (
+        !(await myLazyMintReadWrite.isApprovedForAll(
+          accounts[0],
+          myLazyMintReadWrite.address
+        ))
+      ) {
+        //  Approve the NFT
+        const approveTx = await myLazyMintReadWrite.setApprovalForAll(
+          myLazyMintReadWrite.address,
+          true
+        );
 
-      
-      //  Approve the NFT
-      const approveTx = await myLazyMintReadWrite.setApprovalForAll(
-        myLazyMintReadWrite.address,
-        true
-      );
-
-      //wait for the tx to mint
-      await approveTx.wait();
+        //wait for the tx to mint
+        await approveTx.wait();
+      } else {
+        console.log("approved");
+      }
     }
     //if the NFT off chain
     else {
@@ -59,7 +79,7 @@ const NFTDetails = () => {
       //check if the address is a minter or not
       //if not become a minter first
       if (
-        !(await myLazyMintReadWrite.hasRole(
+        (await myLazyMintReadWrite.hasRole(
           await myLazyMintReadWrite.MINTER_ROLE(),
           accounts[0]
         ))
@@ -67,6 +87,8 @@ const NFTDetails = () => {
         const tx = await myLazyMintReadWrite.SetMinterRole(accounts[0]);
 
         await tx.wait();
+      } else {
+        console.log("has minter role");
       }
     }
 
@@ -88,11 +110,20 @@ const NFTDetails = () => {
     });
 
     setNftPrice("");
+    //navigate to home page
+    nav("/");
   });
 
   //off chain purchasing
   const handleNFTPurchase = catchAsync(async () => {
     const [provider, accounts, signer] = await connectToMetamask();
+
+    //checking the network
+    const chainId = await signer.getChainId();
+    if (chainId !== 4) {
+      alert("connect you metamask to rinkeby network");
+      return;
+    }
 
     const myLazyMintReadWrite = new ethers.Contract(
       RINKEBY_ADDRESS,
@@ -142,19 +173,29 @@ const NFTDetails = () => {
       id: nftCompleteData.db.NFTArt._id,
       ownerAddress: accounts[0],
     });
+
+    //nav to home page
+    nav("/");
   });
 
-  const handleMetamaskConnection = async () => {
+  const handleMetamaskConnection = catchAsync(async () => {
     const [provider, accounts, signer] = await connectToMetamask();
+    //checking the network
+    const chainId = await signer.getChainId();
+    if (chainId !== 4) {
+      alert("connect you metamask to rinkeby network");
+    }
     setAccounts(accounts);
-  };
+  });
 
-
-
-  return (
+  return user._id ? (
     <div className="NFTDetails">
       <h1>NFT Details</h1>
-      {console.log("rendered", accounts)}
+      {accounts.length > 0 ? (
+        <h2>You are connected with {accounts[0]}</h2>
+      ) : (
+        <h2>connect your metamask</h2>
+      )}
       <div className="imageContainer">
         <img
           src={`https://ipfs.moralis.io:2053/ipfs/${
@@ -166,19 +207,25 @@ const NFTDetails = () => {
       </div>
       <div className="detailsContainer">
         <h1>{nftCompleteData.db.NFTArt.artDescription}</h1>
+          
         {nftCompleteData.db.NFTArt.isTokenOnchain ? (
-          //NFT data related to on chain
-
+          //NFT related to on chain
           accounts.length > 0 ? (
             <div>
+              <h2>This NFT on chain</h2>
+              <h1>
+                This NFT owned by {nftCompleteData.db.NFTArt.ownerAddress}
+              </h1>
               {accounts[0] === nftCompleteData.db.NFTArt.ownerAddress ? (
+                //if owner
                 <div className="sellOnChainNFT">
                   <h1>I am the owner of this on chain NFT</h1>
                   <div className="sellNft">
-                    <form onSubmit={handleNFTSellChain}>
+                    <form onSubmit={handleNFTSell}>
                       <input
                         type="text"
                         placeholder="in ether"
+                        required
                         value={nftPrice}
                         onChange={(e) => setNftPrice(e.target.value)}
                       />
@@ -187,34 +234,44 @@ const NFTDetails = () => {
                   </div>
                 </div>
               ) : (
+                //not owner
                 <div className="buyOnchainNFT">
                   {nftCompleteData.db.NFTArt.isForSale ? (
+                    //is for sale
                     <div className="readyToBuyOffChain">
                       <h2>{nftCompleteData.db.NFTArt.sellPrice} Ether</h2>
                       <button onClick={handleNFTPurchase}>Buy the NFT</button>
                     </div>
                   ) : (
+                    //if not for sale yet
                     <h2>Not Ready for Buy yet</h2>
                   )}
                 </div>
               )}
             </div>
           ) : (
-            <button onClick={handleMetamaskConnection}>
-              Connect to metamask to Buy or Sell
-            </button>
+            //if metamask not connected
+            <div>
+              <h3>
+                This is an onChain NFT Connect your metamask to buy or sell
+              </h3>
+              <button onClick={handleMetamaskConnection}>
+                Connect to metamask
+              </button>
+            </div>
           )
-        ) : //NFT data related to off chain
+        ) : //NFT related to off chain
         user._id === nftCompleteData.db.NFTArt.user ? (
           //if owner of the NFt
           <div className="sellTheNFTOffChain">
-            <h1>I am the owner if this NFT</h1>
-
+            <h1>I am the owner of this NFT</h1>
+            <h2>NFT off chain</h2>
             <div className="sellNft">
-              <form onSubmit={handleNFTSellChain}>
+              <form onSubmit={handleNFTSell}>
                 <input
                   type="text"
                   placeholder="in ether"
+                  required
                   value={nftPrice}
                   onChange={(e) => setNftPrice(e.target.value)}
                 />
@@ -238,6 +295,8 @@ const NFTDetails = () => {
         )}
       </div>
     </div>
+  ) : (
+    <h1>Please log In top see more details</h1>
   );
 };
 
