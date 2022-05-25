@@ -11,6 +11,7 @@ import AxiosInstance from "./axoisInstancs.js";
 import NFTDetails from "./NFTDetails";
 import MyAccount from "./MyAccount";
 import MyNFTs from "./MyNFTs";
+import catchAsync from "./utils/catchAsync";
 
 const userContext = createContext();
 const authContext = createContext();
@@ -21,7 +22,6 @@ function App() {
     email: "",
     password: "",
     passwordConfirm: "",
-    isUserLoggedIn: false,
   });
 
   useEffect(() => {
@@ -50,27 +50,13 @@ function App() {
       });
 
       setUser(response.data.data.user);
-    } catch (err) {
-      if (err.response.data) {
-        alert(err.response.data.message);
-      } else {
-        alert("something went wrong");
-      }
-      console.log(err);
-    }
-  };
-
-  const handleLogInSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await AxiosInstance.post("api/users/login", {
-        email: userAuthData.email,
-        password: userAuthData.password,
+      //clear the data
+      setUserAuthData({
+        name: "",
+        email: "",
+        password: "",
+        passwordConfirm: "",
       });
-
-      setUser(response.data.data.user);
-
-      // console.log(response.data.data);
     } catch (err) {
       if (err.response.data) {
         alert(err.response.data.message);
@@ -80,6 +66,23 @@ function App() {
       console.log(err);
     }
   };
+
+  const handleLogInSubmit = catchAsync(async (e) => {
+    e.preventDefault();
+    const response = await AxiosInstance.post("api/users/login", {
+      email: userAuthData.email,
+      password: userAuthData.password,
+    });
+
+    setUser(response.data.data.user);
+    //clear the filed
+    setUserAuthData({
+      name: "",
+      email: "",
+      password: "",
+      passwordConfirm: "",
+    });
+  });
 
   const handleLogOut = async () => {
     const response = await AxiosInstance.post("api/users/logout");
