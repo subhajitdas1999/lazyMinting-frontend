@@ -22,6 +22,7 @@ const Header = () => {
               <input
                 type="text"
                 placeholder="name"
+                required
                 name="name"
                 onChange={handleAuthDataChange}
               />
@@ -29,6 +30,7 @@ const Header = () => {
               <input
                 type="email"
                 placeholder="email"
+                required
                 name="email"
                 onChange={handleAuthDataChange}
               />
@@ -36,6 +38,7 @@ const Header = () => {
               <input
                 type="password"
                 placeholder="password"
+                required
                 name="password"
                 onChange={handleAuthDataChange}
               />
@@ -43,6 +46,7 @@ const Header = () => {
               <input
                 type="password"
                 placeholder="confirm password"
+                required
                 name="passwordConfirm"
                 onChange={handleAuthDataChange}
               />
@@ -55,6 +59,7 @@ const Header = () => {
               <input
                 type="email"
                 placeholder="email"
+                required
                 name="email"
                 onChange={handleAuthDataChange}
               />
@@ -62,6 +67,7 @@ const Header = () => {
               <input
                 type="password"
                 placeholder="password"
+                required
                 name="password"
                 onChange={handleAuthDataChange}
               />
