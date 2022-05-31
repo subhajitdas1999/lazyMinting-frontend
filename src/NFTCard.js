@@ -52,7 +52,7 @@ const NFTCard = (props) => {
                   </p>
                 </div>
               ) : (
-                <p className=" w-fit mx-auto border-b-2 uppercase border-black">Not for sale yet</p>
+                <p className=" w-fit mx-auto border-b-2 uppercase border-black">Coming soon</p>
               )}
             </div>
           </div>
