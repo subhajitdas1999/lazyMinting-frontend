@@ -385,7 +385,7 @@ const NFTDetails = () => {
                       <div className="buyOnchainNFT">
                         <div>
                           <p>
-                            This NFT is owned by
+                            <span className="mr-2"> This NFT is owned by</span>
                             {nftCompleteData.db.NFTArt.ownerAddress}
                           </p>
                           {nftCompleteData.db.NFTArt.isForSale ? (
@@ -421,7 +421,7 @@ const NFTDetails = () => {
                             </div>
                           ) : (
                             //if not for sale yet
-                            <h2>Not Ready for Buy yet</h2>
+                            <p className=" font-bold mt-4 border-4 w-fit p-2 border-black"> Coming Soon</p>
                           )}
                         </div>
                       </div>
