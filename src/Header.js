@@ -24,7 +24,7 @@ const Header = () => {
   const nav = useNavigate();
 
   const handleModalOpen = (e) => {
-    setAuthLoading(false)
+    setAuthLoading(false);
     setModal({
       signIn: false,
       signUp: false,
@@ -40,17 +40,17 @@ const Header = () => {
   };
 
   const handleSignUpForm = catchAsync(async (e) => {
-    setAuthLoading(true)
+    setAuthLoading(true);
     await handleSignupSubmit(e);
-    setAuthLoading(false)
+    setAuthLoading(false);
     handleModalClose();
     nav("/");
   }, handleModalClose);
 
   const handleSignInForm = catchAsync(async (e) => {
-    setAuthLoading(true)
+    setAuthLoading(true);
     await handleLogInSubmit(e);
-    setAuthLoading(false)
+    setAuthLoading(false);
     handleModalClose();
     nav("/");
   }, handleModalClose);
@@ -74,21 +74,24 @@ const Header = () => {
             />
           </Link>
 
-          <button onClick={handleLogOutFrom} className="text-white">
+          <button
+            onClick={handleLogOutFrom}
+            className="text-white border py-1 px-2 rounded hover:bg-white hover:text-blue-700"
+          >
             Log Out
           </button>
         </div>
       ) : (
         <div className="mr-4">
           <button
-            className="mr-8 px-3 py-1 border rounded-sm text-white"
+            className="mr-8 px-3 py-1 border rounded-sm text-white hover:bg-white hover:text-blue-700"
             name="signIn"
             onClick={handleModalOpen}
           >
             Sign in
           </button>
           <button
-            className="border px-3 py-1  rounded-sm text-white"
+            className="border px-3 py-1  rounded-sm text-white hover:bg-white hover:text-blue-700"
             name="signUp"
             onClick={handleModalOpen}
           >
@@ -187,12 +190,16 @@ const Header = () => {
       duration-150
       ease-in-out"
             >
-              {authLoading ?  <div
-                className="mx-auto"
-                style={{ width: "20px", height: "20px" }}
-              >
-                <img src={AuthLoader} alt="" />
-              </div> : "sign in"}
+              {authLoading ? (
+                <div
+                  className="mx-auto"
+                  style={{ width: "20px", height: "20px" }}
+                >
+                  <img src={AuthLoader} alt="" />
+                </div>
+              ) : (
+                "sign in"
+              )}
             </button>
           </form>
           <p className="text-gray-800 mt-6 text-center">
@@ -363,12 +370,16 @@ const Header = () => {
       duration-150
       ease-in-out"
             >
-            {authLoading ?  <div
-                className="mx-auto"
-                style={{ width: "20px", height: "20px" }}
-              >
-                <img src={AuthLoader} alt="" />
-              </div> : "sign up"}
+              {authLoading ? (
+                <div
+                  className="mx-auto"
+                  style={{ width: "20px", height: "20px" }}
+                >
+                  <img src={AuthLoader} alt="" />
+                </div>
+              ) : (
+                "sign up"
+              )}
             </button>
           </form>
           <p className="text-gray-800 mt-6 text-center">
