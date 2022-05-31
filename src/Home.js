@@ -14,7 +14,6 @@ const Home = () => {
   useEffect(() => {
     AxiosInstance("api/nft/allNfts")
       .then((response) => {
-        console.log(response)
         setNfts(response.data.data.nftCollections);
       })
       .catch((err) => alert(err.message));
