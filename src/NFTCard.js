@@ -5,6 +5,10 @@ import defaultImg from "./images/default.jpg";
 const NFTCard = (props) => {
   const [nftCompleteData, setNFTCompleteData] = useState({ db: props });
   useEffect(() => {
+    // https://gateway.pinata.cloud/ipfs/QmX51hALzezCyERpeSqT5d6QCFmp9bmG2ZhncMgzQTGvkJ
+    // const ipfsHash = props.NFTArt.tokenURI.split("://")[1]
+    // const tmp = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`
+    // console.log(tmp);
     fetch(props.NFTArt.artLink)
       .then((response) => response.json())
       .then((data) => {
@@ -16,11 +20,14 @@ const NFTCard = (props) => {
         });
       })
       .catch((err) => {
+
+        // console.log(err)
         alert(err.message);
       });
   }, []);
   return (
     <div className="w-72 m-5">
+      {console.log(nftCompleteData)}
       {nftCompleteData.ipfs ? (
         <Link
           to={`/nft/${nftCompleteData.db.NFTArt.tokenId}`}
