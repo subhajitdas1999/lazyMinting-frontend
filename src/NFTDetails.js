@@ -103,6 +103,7 @@ const NFTDetails = () => {
         );
 
         //wait for the tx to mint
+//         assign this tx reciept to update the prvious reciept (blocknumber etx.)
         await approveTx.wait();
       }
       //approved the tx
